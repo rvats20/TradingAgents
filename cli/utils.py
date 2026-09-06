@@ -1,4 +1,5 @@
 import os
+import logging
 from pathlib import Path
 
 import questionary
@@ -10,6 +11,8 @@ from tradingagents.llm_clients.api_key_env import get_api_key_env
 from tradingagents.llm_clients.model_catalog import get_model_options
 
 console = Console()
+
+logger = logging.getLogger(__name__)
 
 TICKER_INPUT_EXAMPLES = "SPY, 0700.HK, BTC-USD"
 
@@ -74,7 +77,8 @@ def normalize_ticker_symbol(ticker: str) -> str:
         from tradingagents.dataflows.symbol_utils import normalize_symbol
 
         return normalize_symbol(ticker)
-    except Exception:
+    except ImportError as e:
+        logger.debug("symbol_utils unavailable, using plain upper-case: %s", e)
         return ticker.strip().upper()
 
 

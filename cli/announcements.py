@@ -1,10 +1,14 @@
 import getpass
+import logging
 
 import requests
 from rich.console import Console
+from rich.markup import escape
 from rich.panel import Panel
 
 from cli.config import CLI_CONFIG
+
+logger = logging.getLogger(__name__)
 
 
 def fetch_announcements(url: str = None, timeout: float = None) -> dict:
@@ -21,7 +25,8 @@ def fetch_announcements(url: str = None, timeout: float = None) -> dict:
             "announcements": data.get("announcements", [fallback]),
             "require_attention": data.get("require_attention", False),
         }
-    except Exception:
+    except Exception as e:
+        logger.debug("Using fallback announcements: %s", e)
         return {
             "announcements": [fallback],
             "require_attention": False,
@@ -36,7 +41,7 @@ def display_announcements(console: Console, data: dict) -> None:
     if not announcements:
         return
 
-    content = "\n".join(announcements)
+    content = escape("\n".join(announcements))
 
     panel = Panel(
         content,
